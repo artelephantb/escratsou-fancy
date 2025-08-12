@@ -53,7 +53,10 @@ class CompileData:
 			return 'tellraw ' + target + ' \'' + function['input']['message'] + '\''
 		# Give player tags
 		elif function['function'] == 'tag':
-			target = self.get_target(function['input']['target'])
+			selector = None
+			if 'selector' in function['input']:
+				selector = function['input']['selector']
+			target = self.get_target(function['input']['target'], selector=selector)
 			if function['input']['operation'] == 'list':
 				return 'tag ' + target + ' list'
 			elif function['input']['operation'] == 'add':

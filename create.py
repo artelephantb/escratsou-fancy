@@ -52,9 +52,17 @@ class CreateFunctions:
 			self.ticks = self.statements
 			self.statements = []
 
-	def chat(self, message, target='all-players', selector=[]):
+	def chat(self, message: str, target='all-players', selector=[]):
 		'''Send message in chat'''
 		structure = {'function':'chat','input':{'message':message,'target':target,'selector':selector}}
+		if self.current:
+			self.current[-1]['child'].append(structure)
+		else:
+			self.statements.append(structure)
+	
+	def tag(self, tag: str, operation='add', target='all-players', selector=[]):
+		'''Add tag to entity'''
+		structure = {'function':'tag','input':{'name':tag,'operation':operation,'target':target,'selector':selector}}
 		if self.current:
 			self.current[-1]['child'].append(structure)
 		else:
