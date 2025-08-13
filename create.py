@@ -4,7 +4,8 @@ import os
 import tools
 import compile
 
-class CreateFunctions:
+class CreateData:
+	'''Create datapacks using code'''
 	def __init__(self, display_name: str, description: str, author: str, version: int, credit_overide=''):
 		self.display_name = display_name
 		self.description = description
@@ -20,6 +21,7 @@ class CreateFunctions:
 
 	@contextmanager
 	def Namespace(self, name: str):
+		'''Create namespace'''
 		try:
 			yield
 		finally:
@@ -28,6 +30,7 @@ class CreateFunctions:
 
 	@contextmanager
 	def Catagory(self, name: str, catagory: str):
+		'''Create catagory'''
 		try:
 			yield
 		finally:
@@ -35,10 +38,12 @@ class CreateFunctions:
 			self.statements = []
 	
 	def Chat(self, message: str, target='ap', selector=[]):
+		'''Show ingame message'''
 		structure = {'function':'chat','input':{'message':message,'target':target,'selector':selector}}
 		self.statements.append(structure)
 
 	def export_source(self, location: str, file: str, overide=False):
+		'''Export source file'''
 		if os.path.isfile(os.path.join(location, file + '.json')):
 			if overide:
 				os.remove(os.path.join(location, file + '.json'))
@@ -46,5 +51,6 @@ class CreateFunctions:
 				tools.error('Source Datapack Duplicate', 'Source datapack already existant at', os.path.join(location, file))
 		tools.create_json(location, file + '.json', {'overide':overide,'display_name':self.display_name,'description':self.description,'author':self.author,'version':self.version,'data':self.data})
 
-	def export(self, location: str, overide=False):
-		compile.CompileData(self.display_name, self.description, self.author, self.version, self.data, credit_overide=self.credit).export(location, overide=overide)
+	def export(self, location: str, file_overide=False):
+		'''Export datapack'''
+		compile.CompileData(self.display_name, self.description, self.author, self.version, self.data, credit_overide=self.credit).export(location, overide=file_overide)
