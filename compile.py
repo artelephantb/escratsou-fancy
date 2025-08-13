@@ -11,12 +11,13 @@ class Tools:
 		with open(os.path.join(location, file), 'x') as output:
 			json.dump(content, output, indent='\t')
 	
-	def read_source(location: str):
+	def compile_source(location: str, output: str):
 		with open(location, 'r') as source:
-			return json.load(source)
+			content = json.load(source)
+		CompileData(content['display_name'], content['description'], content['author'], content['format'], content['data']).export(output, overide=True)
 
 class CompileData:
-	def __init__(self, display_name: str, description: str, format: int, author: str, content: list, credit_overide=''):
+	def __init__(self, display_name: str, description: str, author: str, format: int, content: list, credit_overide=''):
 		'''Compile datapacks'''
 		self.display_name = display_name
 		self.description = description
@@ -27,7 +28,7 @@ class CompileData:
 		# Check if credit exists
 		self.credit = credit_overide
 		if self.credit == '':
-			self.credit = 'This datapack has been made by \'' + self.author + '\', made with Escratsou Fancy!'
+			self.credit = 'This datapack has been made by ' + self.author + ', made with Escratsou Fancy!'
 	
 	def get_target(self, target: str, selector: list):
 		'''Get target in datapack form'''
