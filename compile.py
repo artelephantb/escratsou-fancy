@@ -7,14 +7,14 @@ import tools
 def compile_source_file(location: str, output: str):
 	with open(location, 'r') as source:
 		content = json.load(source)
-	CompileData(content['display_name'], content['description'], content['author'], content['format'], content['data']).export(output, overide=content['overide'])
+	CompileData(content['display_name'], content['description'], content['author'], content['version'], content['data']).export(output, overide=content['overide'])
 
 class CompileData:
-	def __init__(self, display_name: str, description: str, author: str, format: int, content: list, credit_overide=''):
+	def __init__(self, display_name: str, description: str, author: str, version: int, content: list, credit_overide=''):
 		'''Compile datapacks'''
 		self.display_name = display_name
 		self.description = description
-		self.format = format
+		self.version = version
 		self.author = author
 		self.content = content
 
@@ -54,7 +54,7 @@ class CompileData:
 
 	def create_functions(self, functions: list):
 		'''Create functions in datapack form'''
-		final = ''
+		final = []
 		for function in functions:
 			if function['function'] == 'chat':
 				target = ''
@@ -63,13 +63,13 @@ class CompileData:
 				else:
 					target = self.get_target(function['input']['target'], [])
 
-				final += 'tellraw ' + target + ' \'' + function['input']['message'] + '\'\n'
+				final.append('tellraw ' + target + ' \'' + function['input']['message'] + '\'')
 			elif function['function'] == 'default':
 				target = ''
-				final += function['input']['function'] + '\n'
-		return final
+				final.append(function['input']['function'])
+		return '\n'.join(final)
 
-	def create_tags(self, tags: list, replace):
+	def create_tags(self, tags: list, replace: bool):
 		'''Create tags in datapack form'''
 		final = {'replace':replace,'values':[]}
 		for tag in tags:
@@ -83,7 +83,7 @@ class CompileData:
 			if overide:
 				rmtree(os.path.join(location, self.display_name))
 			else:
-				tools.error('Datapack Already Exists', 'Datapack existant at', os.path.join(location, self.display_name))
+				tools.error('Datapack Duplicate', 'Datapack already existant at', os.path.join(location, self.display_name))
 
 		# Create base directories
 		os.makedirs(os.path.join(location, self.display_name, 'data'))
@@ -92,7 +92,7 @@ class CompileData:
 		tools.create_text(location, self.display_name + '/.credit', self.credit)
 
 		# Create pack.mcmeta
-		tools.create_json(location, self.display_name + '/pack.mcmeta', {'pack':{'pack_format':self.format,'description':self.description}})
+		tools.create_json(location, self.display_name + '/pack.mcmeta', {'pack':{'pack_format':self.version,'description':self.description}})
 
 		# For each namspace
 		for namespace in self.content:
@@ -103,9 +103,9 @@ class CompileData:
 				if 'directory' in catagory:
 					directory = catagory['directory']
 
-				if catagory['format'] == 'function':
+				if catagory['catagory'] == 'function':
 					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory))
 					tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', self.create_functions(catagory['content']))
-				elif catagory['format'] == 'tag':
+				elif catagory['catagory'] == 'tag':
 					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory))
 					tools.create_json(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory), catagory['file'] + '.json', self.create_tags(catagory['content'], catagory['replace']))

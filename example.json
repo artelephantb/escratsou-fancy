@@ -3,13 +3,13 @@
 	"description": "This is a example datapack!",
 	"overide": true,
 	"author": "Me",
-	"format": 81,
+	"version": 81,
 	"data": [
 		{
 			"namespace": "my-namespace",
 			"content": [
 				{
-					"format": "function",
+					"catagory": "function",
 					"file": "tick",
 					"content": [
 						{
@@ -27,7 +27,7 @@
 			"namespace": "minecraft",
 			"content": [
 				{
-					"format": "tag",
+					"catagory": "tag",
 					"file": "tick",
 					"directory": "function",
 					"replace": false,
