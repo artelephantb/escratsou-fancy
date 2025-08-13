@@ -16,3 +16,8 @@ with generate.load():
 
 generate.export()
 ```
+
+Another demo using a source file:
+```python
+Tools.compile_source('../my-source.json', '../my-output-directory/')
+```
