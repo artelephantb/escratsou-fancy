@@ -10,11 +10,11 @@ class Tools:
 	def create_json(location: str, file: str, content: dict):
 		with open(os.path.join(location, file), 'x') as output:
 			json.dump(content, output, indent='\t')
-	
+
 	def compile_source(location: str, output: str):
 		with open(location, 'r') as source:
 			content = json.load(source)
-		CompileData(content['display_name'], content['description'], content['author'], content['format'], content['data']).export(output, overide=True)
+		CompileData(content['display_name'], content['description'], content['author'], content['format'], content['data']).export(output, overide=content['overide'])
 
 class CompileData:
 	def __init__(self, display_name: str, description: str, author: str, format: int, content: list, credit_overide=''):
@@ -29,7 +29,7 @@ class CompileData:
 		self.credit = credit_overide
 		if self.credit == '':
 			self.credit = 'This datapack has been made by ' + self.author + ', made with Escratsou Fancy!'
-	
+
 	def get_target(self, target: str, selector: list):
 		'''Get target in datapack form'''
 		final_target = ''
@@ -47,7 +47,7 @@ class CompileData:
 			final_target = '@e[limit=1,sort=random,'
 		elif target == 'rp': # Random player
 			final_target = '@r'
-		
+
 		if len(selector) > 0:
 			if not '[' in final_target:
 				final_target += '['
@@ -56,7 +56,7 @@ class CompileData:
 			final_target += ']'
 		elif '[' in final_target:
 			final_target += ']'
-		
+
 		return final_target
 
 	def create_functions(self, functions: list):
@@ -75,7 +75,7 @@ class CompileData:
 				target = ''
 				final += function['input']['function'] + '\n'
 		return final
-	
+
 	def create_tags(self, tags: list, replace):
 		'''Create tags in datapack form'''
 		final = {'replace':replace,'values':[]}
@@ -91,7 +91,7 @@ class CompileData:
 				rmtree(os.path.join(location, self.display_name))
 			else:
 				raise FileExistsError('Datapack existant at', os.path.join(location, self.display_name))
-		
+
 		# Create base directories
 		os.makedirs(os.path.join(location, self.display_name, 'data'))
 
