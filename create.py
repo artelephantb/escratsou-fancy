@@ -32,7 +32,6 @@ class CreateFunctions:
 			self.statements = []
 	
 	def Chat(self, message: str, target='ap', selector=[]):
-		'''Add tag to entity'''
 		structure = {'function':'chat','input':{'message':message,'target':target,'selector':selector}}
 		self.statements.append(structure)
 

@@ -2,19 +2,12 @@ import json
 import os
 from shutil import rmtree
 
-class Tools:
-	def create_text(location: str, file: str, content: str):
-		with open(os.path.join(location, file), 'x') as output:
-			output.write(content)
+import tools
 
-	def create_json(location: str, file: str, content: dict):
-		with open(os.path.join(location, file), 'x') as output:
-			json.dump(content, output, indent='\t')
-
-	def compile_source(location: str, output: str):
-		with open(location, 'r') as source:
-			content = json.load(source)
-		CompileData(content['display_name'], content['description'], content['author'], content['format'], content['data']).export(output, overide=content['overide'])
+def compile_source_file(location: str, output: str):
+	with open(location, 'r') as source:
+		content = json.load(source)
+	CompileData(content['display_name'], content['description'], content['author'], content['format'], content['data']).export(output, overide=content['overide'])
 
 class CompileData:
 	def __init__(self, display_name: str, description: str, author: str, format: int, content: list, credit_overide=''):
@@ -90,16 +83,16 @@ class CompileData:
 			if overide:
 				rmtree(os.path.join(location, self.display_name))
 			else:
-				raise FileExistsError('Datapack existant at', os.path.join(location, self.display_name))
+				tools.error('Datapack Already Exists', 'Datapack existant at', os.path.join(location, self.display_name))
 
 		# Create base directories
 		os.makedirs(os.path.join(location, self.display_name, 'data'))
 
 		# Create credit file
-		Tools.create_text(location, self.display_name + '/.credit', self.credit)
+		tools.create_text(location, self.display_name + '/.credit', self.credit)
 
 		# Create pack.mcmeta
-		Tools.create_json(location, self.display_name + '/pack.mcmeta', {'pack':{'pack_format':self.format,'description':self.description}})
+		tools.create_json(location, self.display_name + '/pack.mcmeta', {'pack':{'pack_format':self.format,'description':self.description}})
 
 		# For each namspace
 		for namespace in self.content:
@@ -112,7 +105,7 @@ class CompileData:
 
 				if catagory['format'] == 'function':
 					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory))
-					Tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', self.create_functions(catagory['content']))
+					tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', self.create_functions(catagory['content']))
 				elif catagory['format'] == 'tag':
 					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory))
-					Tools.create_json(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory), catagory['file'] + '.json', self.create_tags(catagory['content'], catagory['replace']))
+					tools.create_json(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory), catagory['file'] + '.json', self.create_tags(catagory['content'], catagory['replace']))

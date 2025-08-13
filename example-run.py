@@ -1,2 +1,2 @@
 import compile
-compile.Tools.compile_source('example.json', 'output')
+compile.compile_source_file('example.json', 'output')
