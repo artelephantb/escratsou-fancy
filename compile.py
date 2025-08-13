@@ -70,15 +70,15 @@ class CompileData:
 				else:
 					target = self.get_target(function['input']['target'], [])
 
-				final += 'tellraw ' + target + ' \'Escratsou Test Message\'\n'
+				final += 'tellraw ' + target + ' \'' + function['input']['message'] + '\'\n'
 			elif function['function'] == 'default':
 				target = ''
 				final += function['input']['function'] + '\n'
 		return final
 	
-	def create_tags(self, tags: list):
+	def create_tags(self, tags: list, replace):
 		'''Create tags in datapack form'''
-		final = {'replace':False,'values':[]}
+		final = {'replace':replace,'values':[]}
 		for tag in tags:
 			final['values'].append(tag)
 		return final
@@ -115,4 +115,4 @@ class CompileData:
 					Tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', self.create_functions(catagory['content']))
 				elif catagory['format'] == 'tag':
 					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory))
-					Tools.create_json(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory), catagory['file'] + '.json', self.create_tags(catagory['content']))
+					Tools.create_json(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory), catagory['file'] + '.json', self.create_tags(catagory['content'], catagory['replace']))
