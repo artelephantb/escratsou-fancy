@@ -75,6 +75,13 @@ class CompileData:
 				target = ''
 				final += function['input']['function'] + '\n'
 		return final
+	
+	def create_tags(self, tags: list):
+		'''Create tags in datapack form'''
+		final = {'replace':False,'values':[]}
+		for tag in tags:
+			final['values'].append(tag)
+		return final
 
 	def export(self, location: str, overide=False):
 		'''Export datapacks in file form'''
@@ -105,4 +112,7 @@ class CompileData:
 
 				if catagory['format'] == 'function':
 					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory))
-					Tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', str(self.create_functions(catagory['content'])))
+					Tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', self.create_functions(catagory['content']))
+				elif catagory['format'] == 'tag':
+					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory))
+					Tools.create_json(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'tags', directory), catagory['file'] + '.json', self.create_tags(catagory['content']))
