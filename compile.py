@@ -1,105 +1,107 @@
+import json
 import os
 from shutil import rmtree
 
-class CompileData:
-	'''Compile source into datapacks'''
-	def __init__(self, source: dict, out_folder: str, name: str, namespace: str, author: str, description: str, version: str):
-		self.source = source
-		self.out_folder = out_folder
+class Tools:
+	def create_text(location: str, file: str, content: str):
+		with open(os.path.join(location, file), 'x') as output:
+			output.write(content)
 
-		self.name = name
-		self.namespace = namespace
-		self.author = author
-		self.description = description
-		self.version = version
-
-		self.loads = ''
-		self.ticks = ''
+	def create_json(location: str, file: str, content: dict):
+		with open(os.path.join(location, file), 'x') as output:
+			json.dump(content, output, indent='\t')
 	
-	def get_target(self, target, selector=None):
-		'''Converts readable entity targets into datapack targets'''
-		target_type = target # For direct player names
-		if target == 'self':
-			target_type = '@s'
-		elif target == 'all-players':
-			target_type = '@a'
-		elif target == 'nearest-players':
-			target_type = '@p'
-		elif target == 'random-players':
-			target_type = '@r'
-		elif target == 'all-entities':
-			target_type = '@e'
-		elif target == 'nearest-entities':
-			target_type = '@n'
-		if selector:
-			target_type += '['
-			for select in selector:
-				target_type += select['type'] + '=' + select['value'] + ','
-			target_type += ']'
-		return target_type
+	def read_source(location: str):
+		with open(location, 'r') as source:
+			return json.load(source)
 
-	def lookup(self, function: dict):
-		'''Different possible functions for datapacks'''
-		# Check for error
-		if not 'function' in function:
-				print('Key Error: \'function\' not in block')
-				exit(1)
-		# Show message in chat
-		if function['function'] == 'chat':
-			selector = None
-			if 'selector' in function['input']:
-				selector = function['input']['selector']
-			target = self.get_target(function['input']['target'], selector=selector)
-			return 'tellraw ' + target + ' \'' + function['input']['message'] + '\''
-		# Give player tags
-		elif function['function'] == 'tag':
-			selector = None
-			if 'selector' in function['input']:
-				selector = function['input']['selector']
-			target = self.get_target(function['input']['target'], selector=selector)
-			if function['input']['operation'] == 'list':
-				return 'tag ' + target + ' list'
-			elif function['input']['operation'] == 'add':
-				return 'tag ' + target + ' add ' + function['input']['name']
-			elif function['input']['operation'] == 'remove':
-				return 'tag ' + target + ' remove ' + function['input']['name']
+class CompileData:
+	def __init__(self, display_name: str, description: str, format: int, author: str, content: list, credit_overide=''):
+		'''Compile datapacks'''
+		self.display_name = display_name
+		self.description = description
+		self.format = format
+		self.author = author
+		self.content = content
 
-	def export(self, overide=False):
-		'''Exports into datapack'''
-		# Remove and create files
-		if overide and os.path.isdir(os.path.join(self.out_folder, self.name)):
-			rmtree(os.path.join(self.out_folder, self.name))
-		os.makedirs(os.path.join(self.out_folder, self.name + '/data/minecraft/tags/function'))
-		os.makedirs(os.path.join(self.out_folder, self.name + '/data/' + self.namespace + '/function'))
+		# Check if credit exists
+		self.credit = credit_overide
+		if self.credit == '':
+			self.credit = 'This datapack has been made by \'' + self.author + '\', made with Escratsou Fancy!'
+	
+	def get_target(self, target: str, selector: list):
+		'''Get target in datapack form'''
+		final_target = ''
+		if target == 's': # Executer
+			final_target = '@s'
+		elif target == 'ae': # All entities
+			final_target = '@e'
+		elif target == 'ap': # All players
+			final_target = '@a'
+		elif target == 'ne': # Nearest entity
+			final_target = '@n'
+		elif target == 'np': # Nearest player
+			final_target = '@p'
+		elif target == 're': # Random entity
+			final_target = '@e[limit=1,sort=random,'
+		elif target == 'rp': # Random player
+			final_target = '@r'
+		
+		if len(selector) > 0:
+			if not '[' in final_target:
+				final_target += '['
+			for selection in selector:
+				final_target += selection + ','
+			final_target += ']'
+		elif '[' in final_target:
+			final_target += ']'
+		
+		return final_target
 
-		# Create pack configeration
-		with open(os.path.join(self.out_folder, self.name + '/pack.mcmeta'), 'x') as document:
-			document.write('{"pack":{"description":"' + self.description + '","pack_format":' + self.version + '}}')
+	def create_functions(self, functions: list):
+		'''Create functions in datapack form'''
+		final = ''
+		for function in functions:
+			if function['function'] == 'chat':
+				target = ''
+				if 'selector' in function['input']:
+					target = self.get_target(function['input']['target'], function['input']['selector'])
+				else:
+					target = self.get_target(function['input']['target'], [])
 
-		# Create loads
-		if self.source['load']:
-			with open(os.path.join(self.out_folder, self.name + '/data/minecraft/tags/function/load.json'), 'x') as document:
-				document.write('{"replace":false,"values":["' + self.namespace + ':load"]}')
-			for block in self.source['load']:
-				self.loads += self.lookup(block)  + '\n'
+				final += 'tellraw ' + target + ' \'Escratsou Test Message\'\n'
+			elif function['function'] == 'default':
+				target = ''
+				final += function['input']['function'] + '\n'
+		return final
 
-			# Output files
-			with open(os.path.join(self.out_folder, f'{self.name}/data/{self.namespace}/function/load.mcfunction'), 'x') as document:
-				document.write(self.loads)
+	def export(self, location: str, overide=False):
+		'''Export datapacks in file form'''
+		# Check if datapack exists
+		if os.path.isdir(os.path.join(location, self.display_name)):
+			if overide:
+				rmtree(os.path.join(location, self.display_name))
+			else:
+				raise FileExistsError('Datapack existant at', os.path.join(location, self.display_name))
+		
+		# Create base directories
+		os.makedirs(os.path.join(location, self.display_name, 'data'))
 
-		# Create ticks
-		if self.source['tick']:
-			with open(os.path.join(self.out_folder, self.name + '/data/minecraft/tags/function/tick.json'), 'x') as document:
-				document.write('{"replace":false,"values":["' + self.namespace + ':tick"]}')
-			for block in self.source['tick']:
-				self.ticks += self.lookup(block)  + '\n'
+		# Create credit file
+		Tools.create_text(location, self.display_name + '/.credit', self.credit)
 
-			# Output files
-			with open(os.path.join(self.out_folder, f'{self.name}/data/{self.namespace}/function/tick.mcfunction'), 'x') as document:
-				document.write(self.ticks)
+		# Create pack.mcmeta
+		Tools.create_json(location, self.display_name + '/pack.mcmeta', {'pack':{'pack_format':self.format,'description':self.description}})
 
-		# Create user controlled files
-		if self.source['paper']:
-			for block in self.source['paper']:
-				with open(os.path.join(self.out_folder, block['file']), 'a') as document:
-					document.write(block['document'])
+		# For each namspace
+		for namespace in self.content:
+			os.mkdir(os.path.join(location, self.display_name, 'data', namespace['namespace']))
+			# Catagories like functions, advancements, tags, etc...
+			for catagory in namespace['content']:
+				directory = ''
+				if 'directory' in catagory:
+					directory = catagory['directory']
+
+				if catagory['format'] == 'function':
+					os.makedirs(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory))
+					Tools.create_text(os.path.join(location, self.display_name, 'data', namespace['namespace'], 'function', directory), catagory['file'] + '.mcfunction', str(self.create_functions(catagory['content'])))
