@@ -1,6 +1,6 @@
 import json
 import os
-from shutil import rmtree
+import shutil
 
 import tools
 
@@ -41,6 +41,7 @@ class CompileData:
 		elif target == 'rp': # Random player
 			final_target = '@r'
 
+		# Add selector
 		if len(selector) > 0:
 			if not '[' in final_target:
 				final_target += '['
@@ -81,7 +82,7 @@ class CompileData:
 		# Check if datapack exists
 		if os.path.isdir(os.path.join(location, self.display_name)):
 			if overide:
-				rmtree(os.path.join(location, self.display_name))
+				shutil.rmtree(os.path.join(location, self.display_name))
 			else:
 				tools.error('Datapack Duplicate', 'Datapack already existant at', os.path.join(location, self.display_name))
 
@@ -93,6 +94,9 @@ class CompileData:
 
 		# Create pack.mcmeta
 		tools.create_json(location, self.display_name + '/pack.mcmeta', {'pack':{'pack_format':self.version,'description':self.description}})
+
+		# Create pack icon
+		shutil.copy(os.path.dirname(os.path.abspath(__file__)) + '/textures/pack.png', os.path.join(location, self.display_name + '/pack.png'))
 
 		# For each namspace
 		for namespace in self.content:
