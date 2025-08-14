@@ -15,7 +15,6 @@ class CreateData:
 
 		self.statements = []
 		self.catagories = []
-		self.current = []
 
 		self.data = []
 
@@ -41,6 +40,11 @@ class CreateData:
 		'''Show ingame message'''
 		structure = {'function':'chat','input':{'message':message,'target':target,'selector':selector}}
 		self.statements.append(structure)
+	
+	def Default(self, code: str):
+		'''Runs datapack format'''
+		structure = {'function':'default','input':{'function':code}}
+		self.statements.append(structure)
 
 	def export_source(self, location: str, file: str, overide=False):
 		'''Export source file'''
@@ -51,6 +55,6 @@ class CreateData:
 				tools.error('Source Datapack Duplicate', 'Source datapack already existant at', os.path.join(location, file))
 		tools.create_json(location, file + '.json', {'overide':overide,'display_name':self.display_name,'description':self.description,'author':self.author,'version':self.version,'data':self.data})
 
-	def export(self, location: str, file_overide=False):
+	def export(self, location: str, overide=False):
 		'''Export datapack'''
-		compile.CompileData(self.display_name, self.description, self.author, self.version, self.data, credit_overide=self.credit).export(location, overide=file_overide)
+		compile.CompileData(self.display_name, self.description, self.author, self.version, self.data, credit_overide=self.credit).export(location, overide=overide)
