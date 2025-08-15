@@ -7,5 +7,6 @@ with generate.Namespace('my-namespace'):
 		generate.Chat('Hello')
 		generate.Default('say ...')
 		generate.Chat('World!')
+		generate.Teleport('0 0 0')
 
 generate.export('output', overide=True)

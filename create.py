@@ -35,15 +35,20 @@ class CreateData:
 		finally:
 			self.catagories.append({'catagory':catagory,'file':name,'content':self.statements})
 			self.statements = []
-	
+
+	def Default(self, code: str):
+		'''Runs datapack format'''
+		structure = {'function':'default','input':{'function':code}}
+		self.statements.append(structure)
+
 	def Chat(self, message: str, target='ap', selector=[]):
 		'''Show ingame message'''
 		structure = {'function':'chat','input':{'message':message,'target':target,'selector':selector}}
 		self.statements.append(structure)
-	
-	def Default(self, code: str):
-		'''Runs datapack format'''
-		structure = {'function':'default','input':{'function':code}}
+
+	def Teleport(self, coordinate: str, target='ap', selector=[]):
+		'''Teleports entities'''
+		structure = {'function':'teleport','input':{'coordinate':coordinate,'target':target,'selector':selector}}
 		self.statements.append(structure)
 
 	def export_source(self, location: str, file: str, overide=False):

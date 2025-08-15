@@ -57,7 +57,10 @@ class CompileData:
 		'''Create functions in datapack form'''
 		final = []
 		for function in functions:
-			if function['function'] == 'chat':
+			if function['function'] == 'default':
+				target = ''
+				final.append(function['input']['function'])
+			elif function['function'] == 'chat':
 				target = ''
 				if 'selector' in function['input']:
 					target = self.get_target(function['input']['target'], function['input']['selector'])
@@ -65,9 +68,14 @@ class CompileData:
 					target = self.get_target(function['input']['target'], [])
 
 				final.append('tellraw ' + target + ' \'' + function['input']['message'] + '\'')
-			elif function['function'] == 'default':
+			elif function['function'] == 'teleport':
 				target = ''
-				final.append(function['input']['function'])
+				if 'selector' in function['input']:
+					target = self.get_target(function['input']['target'], function['input']['selector'])
+				else:
+					target = self.get_target(function['input']['target'], [])
+
+				final.append('teleport ' + target + ' ' + function['input']['coordinate'])
 		return '\n'.join(final)
 
 	def create_tags(self, tags: list, replace: bool):
