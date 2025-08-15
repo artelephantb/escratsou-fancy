@@ -1,4 +1,4 @@
-# Escratsou Fancy ![Image](https://github.com/artelephantb/escratsou-fancy/blob/main/snake.png)
+# Escratsou Fancy ![Logo](https://github.com/artelephantb/escratsou-fancy/blob/main/snake.png)
 Escratsou, but fancy.
 
 ## About
