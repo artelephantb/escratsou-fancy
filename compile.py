@@ -5,9 +5,17 @@ import shutil
 import tools
 
 def compile_source_file(location: str, output: str):
-	with open(location, 'r') as source:
-		content = json.load(source)
-	CompileData(content['display_name'], content['description'], content['author'], content['version'], content['data']).export(output, overide=content['overide'])
+	try:
+		with open(location, 'r') as source:
+			try:
+				content = json.load(source)
+			except json.decoder.JSONDecodeError:
+				tools.error('Invalid JSON', 'Input is not correct JSON format at', os.path.abspath(location), suggest='May be invalid JSON')
+		CompileData(content['display_name'], content['description'], content['author'], content['version'], content['data']).export(output, overide=content['overide'])
+	except IsADirectoryError:
+		tools.error('Input As Directory', 'Input is not file at', os.path.abspath(location), suggest='May be swapped with output')
+	except UnicodeDecodeError:
+		tools.error('Input Not JSON', 'Input is not JSON at', os.path.abspath(location), suggest='May be image file')
 
 class CompileData:
 	def __init__(self, display_name: str, description: str, author: str, version: int, content: list, credit_overide=''):
@@ -26,20 +34,22 @@ class CompileData:
 	def get_target(self, target: str, selector: list):
 		'''Get target in datapack form'''
 		final_target = ''
-		if target == 's': # Executer
+		if target == 'self': # Executer
 			final_target = '@s'
-		elif target == 'ae': # All entities
+		elif target == 'all': # All entities
 			final_target = '@e'
-		elif target == 'ap': # All players
+		elif target == 'all-players': # All players
 			final_target = '@a'
-		elif target == 'ne': # Nearest entity
+		elif target == 'nearest': # Nearest entity
 			final_target = '@n'
-		elif target == 'np': # Nearest player
+		elif target == 'nearest-player': # Nearest player
 			final_target = '@p'
-		elif target == 're': # Random entity
+		elif target == 'random': # Random entity
 			final_target = '@e[limit=1,sort=random,'
-		elif target == 'rp': # Random player
+		elif target == 'random-player': # Random player
 			final_target = '@r'
+		else:
+			tools.error('Incorrect Target Name', 'Target not compatible', suggest='Try to use targets like \'all\' to start out')
 
 		# Add selector
 		if len(selector) > 0:
