@@ -1,4 +1,5 @@
 import create
+import tools
 
 generate = create.CreateData('My datapack', 'Example', 'Me', 81)
 
@@ -10,3 +11,5 @@ with generate.Namespace('my-namespace'):
 		generate.Teleport('0 0 0')
 
 generate.export('output', overide=True)
+
+tools.finish('Datapack Created', 'Created datapack!')

@@ -92,10 +92,13 @@ class CompileData:
 			if overide:
 				shutil.rmtree(os.path.join(location, self.display_name))
 			else:
-				tools.error('Datapack Duplicate', 'Datapack already existant at', os.path.join(location, self.display_name))
+				tools.error('Datapack Duplicate', 'Datapack already existant at', os.path.abspath(os.path.join(location, self.display_name)))
 
 		# Create base directories
-		os.makedirs(os.path.join(location, self.display_name, 'data'))
+		try:
+			os.makedirs(os.path.join(location, self.display_name, 'data'))
+		except NotADirectoryError:
+			tools.error('Datapack Duplicate As Not Directory', 'Datapack existant at', os.path.abspath(location), 'but is not directory', suggest='May be file instead of directory')
 
 		# Create credit file
 		tools.create_text(location, self.display_name + '/.credit', self.credit)
